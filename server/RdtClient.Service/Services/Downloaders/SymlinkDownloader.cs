@@ -27,43 +27,64 @@ public class SymlinkDownloader : IDownloader
         _logger.Debug($"Starting symlink resolving of {_uri}, writing to path: {_filePath}");
 
         var fileName = Path.GetFileName(_filePath);
+        var fileExtension = Path.GetExtension(_filePath).ToLower();
 
-        DownloadProgress?.Invoke(this, new DownloadProgressEventArgs
+        // Check if the file is a .rat or .zip file for special handling.
+        if (fileExtension == ".rar" || fileExtension == ".zip")
         {
-            BytesDone = 0,
-            BytesTotal = 0,
-            Speed = 0
-        });
+            var targetFolderName = Path.GetFileNameWithoutExtension(_filePath);
+            _logger.Debug($"Searching {Settings.Get.DownloadClient.RcloneMountPath} for folder {targetFolderName}");
 
-        _logger.Debug($"Searching {Settings.Get.DownloadClient.RcloneMountPath} for {fileName}");
+            var foundFolders = Directory.GetDirectories(Settings.Get.DownloadClient.RcloneMountPath, targetFolderName, SearchOption.AllDirectories);
 
-        // Recursively search for the fileName in the rclone mount location.
-        var foundFiles = Directory.GetFiles(Settings.Get.DownloadClient.RcloneMountPath, fileName, SearchOption.AllDirectories);
-
-        if (foundFiles.Any())
-        {
-            if (foundFiles.Length > 1)
+            if (foundFolders.Any())
             {
-                _logger.Warning($"Found {foundFiles.Length} files named {fileName}");
-            }
+                if (foundFolders.Length > 1)
+                {
+                    _logger.Warning($"Found {foundFolders.Length} folders named {targetFolderName}");
+                }
 
-            // Assume first matching filename is the one we want.
-            var actualFilePath = foundFiles.First();
+                var actualFolderPath = foundFolders.First();
+                var filesInFolder = Directory.GetFiles(actualFolderPath);
 
-            var result = TryCreateSymbolicLink(actualFilePath, _filePath);
+                foreach (var file in filesInFolder)
+                {
+                    var targetFileName = Path.GetFileName(file);
+                    var symlinkTargetPath = Path.Combine(_filePath, targetFileName);
+                    TryCreateSymbolicLink(file, symlinkTargetPath);
+                }
 
-            if (result)
-            {
                 DownloadComplete?.Invoke(this, new DownloadCompleteEventArgs());
+                _logger.Information($"Folder {targetFolderName} found on {Settings.Get.DownloadClient.RcloneMountPath} at {actualFolderPath}");
+                return Task.FromResult<String?>(actualFolderPath);
+            }
+        }
+        else
+        {
+            // Original code logic for handling single file.
+            _logger.Debug($"Searching {Settings.Get.DownloadClient.RcloneMountPath} for {fileName}");
+            var foundFiles = Directory.GetFiles(Settings.Get.DownloadClient.RcloneMountPath, fileName, SearchOption.AllDirectories);
 
-                _logger.Information($"File {fileName} found on {Settings.Get.DownloadClient.RcloneMountPath} at {actualFilePath}");
-                return Task.FromResult<String?>(actualFilePath);
+            if (foundFiles.Any())
+            {
+                if (foundFiles.Length > 1)
+                {
+                    _logger.Warning($"Found {foundFiles.Length} files named {fileName}");
+                }
+
+                var actualFilePath = foundFiles.First();
+                var result = TryCreateSymbolicLink(actualFilePath, _filePath);
+
+                if (result)
+                {
+                    DownloadComplete?.Invoke(this, new DownloadCompleteEventArgs());
+                    _logger.Information($"File {fileName} found on {Settings.Get.DownloadClient.RcloneMountPath} at {actualFilePath}");
+                    return Task.FromResult<String?>(actualFilePath);
+                }
             }
         }
 
-        _logger.Information($"File {fileName} not found on {Settings.Get.DownloadClient.RcloneMountPath}!");
-
-        // Return null and try again next cycle.
+        _logger.Information($"File/Folder {fileName} not found on {Settings.Get.DownloadClient.RcloneMountPath}!");
         return Task.FromResult<String?>(null);
     }
 

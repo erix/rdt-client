@@ -7,6 +7,7 @@ ENV BUILDPLATFORM=${BUILDPLATFORM:-linux/amd64}
 
 RUN mkdir /appclient
 WORKDIR /appclient
+#ADD client client
 
 RUN apk add --no-cache git python3 py3-pip make g++
 
@@ -29,10 +30,11 @@ ENV BUILDPLATFORM=${BUILDPLATFORM:-linux/amd64}
 
 RUN mkdir /appserver
 WORKDIR /appserver
+ADD server server
 
 RUN \
-   echo "**** Cloning Source Code ****" && \
-   git clone https://github.com/rogerfar/rdt-client.git . && \
+   #echo "**** Cloning Source Code ****" && \
+   #git clone https://github.com/rogerfar/rdt-client.git . && \
    echo "**** Building Source Code for $TARGETPLATFORM on $BUILDPLATFORM ****" && \
    cd server && \
    dotnet restore --no-cache RdtClient.sln && dotnet publish --no-restore -c Release -o out ; 
