@@ -626,7 +626,11 @@ public class TorrentRunner(ILogger<TorrentRunner> logger, Torrents torrents, Dow
 
                         if (torrent.HostDownloadAction == TorrentHostDownloadAction.DownloadAll)
                         {
-                            await torrents.CreateDownloads(torrent.TorrentId);
+                            // Only auto-create downloads if automatic downloads are enabled in settings
+                            if (Settings.Get.General.AutomaticDownloads)
+                            {
+                                await torrents.CreateDownloads(torrent.TorrentId);
+                            }
                         }
                     }
                 }

@@ -35,6 +35,10 @@ export class TorrentTableComponent implements OnInit {
   public retryError: string;
   public retrying: boolean;
 
+  public isStartDownloadModalActive: boolean;
+  public startDownloadError: string;
+  public startingDownload: boolean;
+
   public isChangeSettingsModalActive: boolean;
   public changeSettingsError: string;
   public changingSettings: boolean;
@@ -162,6 +166,39 @@ export class TorrentTableComponent implements OnInit {
       error: (err) => {
         this.retryError = err.error;
         this.retrying = false;
+      },
+    });
+  }
+
+  public showStartDownloadModal(): void {
+    this.startDownloadError = null;
+
+    this.isStartDownloadModalActive = true;
+  }
+
+  public startDownloadCancel(): void {
+    this.isStartDownloadModalActive = false;
+  }
+
+  public startDownloadOk(): void {
+    this.startingDownload = true;
+
+    const calls: Observable<void>[] = [];
+
+    this.selectedTorrents.forEach((torrentId) => {
+      calls.push(this.torrentService.startDownload(torrentId));
+    });
+
+    forkJoin(calls).subscribe({
+      complete: () => {
+        this.isStartDownloadModalActive = false;
+        this.startingDownload = false;
+
+        this.selectedTorrents = [];
+      },
+      error: (err) => {
+        this.startDownloadError = err.error;
+        this.startingDownload = false;
       },
     });
   }

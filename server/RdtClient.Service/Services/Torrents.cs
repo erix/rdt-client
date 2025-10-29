@@ -388,6 +388,39 @@ public class Torrents(
         await torrentData.UpdateComplete(torrent.TorrentId, "All files excluded", DateTimeOffset.Now, false);
     }
 
+    /// <summary>
+    /// Manually triggers download creation for a torrent that is finished on the provider but hasn't started downloading to host yet.
+    /// </summary>
+    /// <param name="torrentId">The torrent ID to start downloading</param>
+    public async Task StartDownload(Guid torrentId)
+    {
+        var torrent = await GetById(torrentId);
+
+        if (torrent == null)
+        {
+            throw new Exception($"Torrent {torrentId} not found");
+        }
+
+        if (torrent.RdStatus != TorrentStatus.Finished)
+        {
+            throw new Exception($"Torrent must be finished on provider before starting download. Current status: {torrent.RdStatus}");
+        }
+
+        if (torrent.Downloads.Count > 0)
+        {
+            throw new Exception("Downloads already exist for this torrent");
+        }
+
+        if (torrent.HostDownloadAction != TorrentHostDownloadAction.DownloadAll)
+        {
+            throw new Exception($"Torrent HostDownloadAction is set to {torrent.HostDownloadAction}. Cannot start download.");
+        }
+
+        Log($"Manually starting download", torrent);
+
+        await CreateDownloads(torrentId);
+    }
+
     public async Task Delete(Guid torrentId, Boolean deleteData, Boolean deleteRdTorrent, Boolean deleteLocalFiles)
     {
         var torrent = await GetById(torrentId);

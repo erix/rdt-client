@@ -90,6 +90,10 @@ Supports the following parameters:
     [DisplayName("Disable update notifications")]
     [Description("Ignore update notifications. You will still be notified if the version you are running has a security vulnerability.")]
     public Boolean DisableUpdateNotifications { get; set; } = false;
+
+    [DisplayName("Automatic downloads")]
+    [Description("When enabled, downloads will start automatically after torrent finishes on the provider. When disabled, torrents will remain in 'Ready to Download' status until manually triggered.")]
+    public Boolean AutomaticDownloads { get; set; } = true;
 }
 
 public class DbSettingsDownloadClient

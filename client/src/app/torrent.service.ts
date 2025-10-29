@@ -91,6 +91,10 @@ export class TorrentService {
     return this.http.post<void>(`${this.baseHref}Api/Torrents/RetryDownload/${downloadId}`, {});
   }
 
+  public startDownload(torrentId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseHref}Api/Torrents/StartDownload/${torrentId}`, {});
+  }
+
   public update(torrent: Torrent): Observable<void> {
     return this.http.put<void>(`${this.baseHref}Api/Torrents/Update`, torrent);
   }

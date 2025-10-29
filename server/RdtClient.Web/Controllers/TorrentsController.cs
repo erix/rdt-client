@@ -198,7 +198,25 @@ public class TorrentsController(ILogger<TorrentsController> logger, Torrents tor
 
         return Ok();
     }
-        
+
+    [HttpPost]
+    [Route("StartDownload/{torrentId:guid}")]
+    public async Task<ActionResult> StartDownload(Guid torrentId)
+    {
+        logger.LogDebug("Start download {torrentId}", torrentId);
+
+        try
+        {
+            await torrents.StartDownload(torrentId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error starting download for torrent {torrentId}", torrentId);
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPut]
     [Route("Update")]
     public async Task<ActionResult> Update([FromBody] Torrent? torrent)

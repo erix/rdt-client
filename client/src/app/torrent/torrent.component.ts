@@ -53,6 +53,10 @@ export class TorrentComponent implements OnInit {
   public downloadRetrying: boolean;
   public downloadRetryId: string;
 
+  public isStartDownloadModalActive: boolean;
+  public startDownloadError: string;
+  public startingDownload: boolean;
+
   public isUpdateSettingsModalActive: boolean;
 
   public updateSettingsDownloadClient: number;
@@ -194,6 +198,31 @@ export class TorrentComponent implements OnInit {
       error: (err) => {
         this.downloadRetryError = err.error;
         this.downloadRetrying = false;
+      },
+    });
+  }
+
+  public showStartDownloadModal(): void {
+    this.startDownloadError = null;
+
+    this.isStartDownloadModalActive = true;
+  }
+
+  public startDownloadCancel(): void {
+    this.isStartDownloadModalActive = false;
+  }
+
+  public startDownloadOk(): void {
+    this.startingDownload = true;
+
+    this.torrentService.startDownload(this.torrent.torrentId).subscribe({
+      next: () => {
+        this.isStartDownloadModalActive = false;
+        this.startingDownload = false;
+      },
+      error: (err) => {
+        this.startDownloadError = err.error;
+        this.startingDownload = false;
       },
     });
   }

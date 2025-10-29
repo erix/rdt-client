@@ -89,6 +89,10 @@ export class TorrentStatusPipe implements PipeTransform {
       case RealDebridStatus.Error:
         return `Torrent error: ${torrent.rdStatusRaw}`;
       case RealDebridStatus.Finished:
+        // If torrent is finished but no downloads have been created yet, it's ready to be manually downloaded
+        if (torrent.downloads.length === 0) {
+          return `Ready to Download`;
+        }
         return `Torrent finished, waiting for download links`;
       case RealDebridStatus.Uploading:
         return `Torrent uploading`;
