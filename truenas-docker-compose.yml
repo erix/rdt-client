@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  rdt-client:
+    image: erix12/rdt-client-manual-download:latest
+    container_name: rdt-client-manual-download
+    restart: unless-stopped
+
+    ports:
+      - "6500:6500"
+
+    volumes:
+      # Downloads directory - CHANGE THIS to your TrueNAS pool path
+      - /mnt/YOUR_POOL/downloads:/data/downloads
+
+      # Database and settings - CHANGE THIS to your TrueNAS pool path
+      - /mnt/YOUR_POOL/appdata/rdt-client:/data/db
+
+    environment:
+      # Log level (Error, Warning, Information, Debug)
+      - LOG_LEVEL=Warning
+
+    # Run as TrueNAS apps user
+    user: "568:568"
+
+    # Hostname
+    hostname: rdt-client
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6500"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
