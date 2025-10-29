@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rdt-client-manual-download.fullname" . }}
+  labels:
+    {{- include "rdt-client-manual-download.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "rdt-client-manual-download.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rdt-client-manual-download.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      containers:
+      - name: rdt-client
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 6500
+          protocol: TCP
+        env:
+        {{- range $key, $value := .Values.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        volumeMounts:
+        - name: downloads
+          mountPath: /data/downloads
+        - name: database
+          mountPath: /data/db
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      volumes:
+      - name: downloads
+        {{- if .Values.persistence.downloads.hostPath }}
+        hostPath:
+          path: {{ .Values.persistence.downloads.hostPath }}
+          type: DirectoryOrCreate
+        {{- else if .Values.persistence.downloads.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.downloads.existingClaim }}
+        {{- else }}
+        persistentVolumeClaim:
+          claimName: {{ include "rdt-client-manual-download.fullname" . }}-downloads
+        {{- end }}
+      - name: database
+        {{- if .Values.persistence.database.hostPath }}
+        hostPath:
+          path: {{ .Values.persistence.database.hostPath }}
+          type: DirectoryOrCreate
+        {{- else if .Values.persistence.database.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.database.existingClaim }}
+        {{- else }}
+        persistentVolumeClaim:
+          claimName: {{ include "rdt-client-manual-download.fullname" . }}-database
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

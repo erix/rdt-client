@@ -1,0 +1,19 @@
+apiVersion: v2
+name: rdt-client-manual-download
+description: Real-Debrid Torrent Client with Manual Download Feature
+type: application
+version: 1.0.0
+appVersion: "2.0.119"
+keywords:
+  - rdt-client
+  - real-debrid
+  - torrent
+  - debrid
+home: https://github.com/erix/rdt-client
+sources:
+  - https://github.com/erix/rdt-client
+  - https://github.com/rogerfar/rdt-client
+maintainers:
+  - name: erix12
+    email: your-email@example.com
+icon: https://raw.githubusercontent.com/rogerfar/rdt-client/master/client/src/assets/img/android-chrome-512x512.png

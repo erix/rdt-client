@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  rdt-client:
+    image: erix12/rdt-client-manual-download:latest
+    container_name: rdt-client-manual-download
+    restart: unless-stopped
+
+    ports:
+      - "6500:6500"
+
+    volumes:
+      # Downloads directory - change this to your TrueNAS path
+      - /mnt/pool/downloads:/data/downloads
+
+      # Database and settings - change this to your TrueNAS path
+      - /mnt/pool/appdata/rdt-client/db:/data/db
+
+    environment:
+      # Optional: Set base path if running behind reverse proxy with subpath
+      # - BASE_PATH=/rdtclient
+
+      # Optional: Set log level (Error, Warning, Information, Debug)
+      - LOG_LEVEL=Warning
+
+    # Optional: Set user/group ID (TrueNAS typically uses 568:568 or 1000:1000)
+    # user: "568:568"
+
+    # Optional: Set hostname
+    hostname: rdt-client
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6500"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

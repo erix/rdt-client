@@ -1,0 +1,35 @@
+{{- if and .Values.persistence.downloads.enabled (not .Values.persistence.downloads.existingClaim) (not .Values.persistence.downloads.hostPath) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "rdt-client-manual-download.fullname" . }}-downloads
+  labels:
+    {{- include "rdt-client-manual-download.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.downloads.accessMode }}
+  {{- if .Values.persistence.downloads.storageClass }}
+  storageClassName: {{ .Values.persistence.downloads.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.downloads.size }}
+{{- end }}
+---
+{{- if and .Values.persistence.database.enabled (not .Values.persistence.database.existingClaim) (not .Values.persistence.database.hostPath) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "rdt-client-manual-download.fullname" . }}-database
+  labels:
+    {{- include "rdt-client-manual-download.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.database.accessMode }}
+  {{- if .Values.persistence.database.storageClass }}
+  storageClassName: {{ .Values.persistence.database.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.database.size }}
+{{- end }}

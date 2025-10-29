@@ -1,0 +1,81 @@
+# Default values for rdt-client-manual-download
+
+image:
+  repository: erix12/rdt-client-manual-download
+  tag: latest
+  pullPolicy: Always
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 6500
+
+# Ingress configuration (optional)
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: rdt-client.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: rdt-client-tls
+  #    hosts:
+  #      - rdt-client.local
+
+# Environment variables
+env:
+  # BASE_PATH: /rdtclient
+  LOG_LEVEL: Warning
+
+# Security context
+securityContext:
+  runAsUser: 568
+  runAsGroup: 568
+  fsGroup: 568
+
+# Resource limits
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+# Persistence configuration
+persistence:
+  downloads:
+    enabled: true
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 100Gi
+    # Use existing PVC
+    # existingClaim: ""
+    # Use hostPath (for direct TrueNAS path mounting)
+    hostPath: ""
+    # hostPath: /mnt/pool/downloads
+
+  database:
+    enabled: true
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    # Use existing PVC
+    # existingClaim: ""
+    # Use hostPath (for direct TrueNAS path mounting)
+    hostPath: ""
+    # hostPath: /mnt/pool/appdata/rdt-client
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
