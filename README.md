@@ -1,12 +1,32 @@
 # Real-Debrid Torrent Client
 
-This is a web interface to manage your torrents on Real-Debrid, AllDebrid, Premiumize TorBox or DebridLink. It supports the following features:
+> **Note:** This is a custom fork with manual download control. See the [original project](https://github.com/rogerfar/rdt-client) for the standard version.
+
+This is a web interface to manage your torrents on Real-Debrid, AllDebrid, Premiumize TorBox or DebridLink.
+
+## Manual Download Feature
+
+This fork adds **manual download control** - giving you full control over when torrents are downloaded to your local storage. Instead of automatically downloading every torrent that finishes on your debrid provider, torrents will show "Ready to Download" status with a button to start the download when you're ready.
+
+**Key Benefits:**
+- Review torrents before downloading to local storage
+- Save local disk space by only downloading what you want
+- Control when downloads happen (e.g., during off-peak hours)
+- Perfect for users with limited local storage
+- Bulk download operations - download multiple torrents at once
+
+**Docker Image:** `erix12/rdt-client-manual-download:latest`
+
+See [Manual Download Setup](#manual-download-setup) below for configuration instructions.
+
+## Features
 
 - Add new torrents through magnets or files
-- Download all files from Real-Debrid, AllDebrid, Premiumize or TorBox to your local machine automatically
+- **Manual or automatic download control** - decide when to download each torrent
+- Download all files from Real-Debrid, AllDebrid, Premiumize or TorBox to your local machine
 - Unpack all files when finished downloading
 - Implements a fake qBittorrent API so you can hook up other applications like Sonarr, Radarr or Couchpotato.
-- Built with Angular 15 and .NET 9
+- Built with Angular 20 and .NET 9
 
 **You will need a Premium service at Real-Debrid, AllDebrid, Premiumize or Torbox!**
 
@@ -27,6 +47,51 @@ This is a web interface to manage your torrents on Real-Debrid, AllDebrid, Premi
 Please see our separate Docker setup Read Me.
 
 [Readme for Docker](README-DOCKER.md)
+
+### Multi-Platform Support
+
+This custom version includes multi-platform Docker images:
+- **AMD64** - Intel/AMD servers, desktops, TrueNAS SCALE
+- **ARM64** - Raspberry Pi 3/4/5 (64-bit OS), ARM servers
+
+**Quick Start:**
+```bash
+docker run -d \
+  --name rdt-client-manual-download \
+  -p 6500:6500 \
+  -v /path/to/downloads:/data/downloads \
+  -v /path/to/db:/data/db \
+  erix12/rdt-client-manual-download:latest
+```
+
+**Deployment Guides:**
+- [TrueNAS SCALE 24.10](TRUENAS-24.10-DEPLOYMENT.md) - Custom App deployment
+- [TrueNAS SCALE (Helm/Docker Compose)](TRUENAS-SCALE-DEPLOYMENT.md) - Advanced deployment
+- [Raspberry Pi Setup](RASPBERRY-PI-SETUP.md) - ARM64 deployment with optimization tips
+- [Docker Compose Example](docker-compose.yml)
+
+## Manual Download Setup
+
+After installation, enable manual download mode:
+
+1. **Access the web UI** at `http://your-server:6500`
+2. **Login** with your credentials
+3. **Go to Settings** (gear icon)
+4. **Find "Automatic downloads"** checkbox under General settings
+5. **Uncheck** "Automatic downloads"
+6. **Save** settings
+
+Now when torrents finish on your debrid provider:
+- They will show **"Ready to Download"** status instead of auto-downloading
+- Click **"Start Download"** button on individual torrents to download
+- Or select multiple torrents and use **"Start Downloads"** bulk action
+- Torrents remain visible until you manually remove them
+
+**Use Cases:**
+- Review content before using local storage
+- Queue downloads for off-peak hours
+- Manage limited local disk space
+- Keep torrents available for re-download without re-adding to provider
 
 ## Run as a Service
 
@@ -219,5 +284,46 @@ RDT Client read and write permission tests fail if the CIFS connection is not se
 ```
 System.IO.IOException: Permission denied
 ```
-The **nobrl** has to be specified in your CIFS connection - [man page](https://linux.die.net/man/8/mount.cifs). 
+The **nobrl** has to be specified in your CIFS connection - [man page](https://linux.die.net/man/8/mount.cifs).
 Example: ```Options=_netdev,credentials=/etc/samba/credentials/600file,rw,uid=SUBUID,gid=SBUGID,nobrl,file_mode=0770,dir_mode=0770,noperm```
+
+## What's Different in This Fork?
+
+This custom version adds manual download control while maintaining full backward compatibility:
+
+### New Features
+- **Manual Download Mode** - Disable automatic downloads via settings
+- **"Ready to Download" Status** - Torrents show when ready for manual download
+- **Start Download Button** - Individual torrent download trigger on detail page
+- **Bulk Download Action** - Download multiple selected torrents at once
+- **Row Action Button** - Quick download trigger from torrent table
+
+### Backend Changes
+- Added `AutomaticDownloads` boolean setting (defaults to `true` for backward compatibility)
+- Modified `TorrentRunner` to check setting before auto-creating downloads
+- Added `StartDownload()` API endpoint: `POST /Api/Torrents/StartDownload/{torrentId}`
+- Added validation to ensure torrents are ready before manual download
+
+### Frontend Changes
+- Updated `torrent-status.pipe.ts` to show "Ready to Download" status
+- Added download modals and buttons following existing UI patterns
+- Bulk operations use `forkJoin()` for parallel downloads
+
+### Compatibility
+✅ **Fully backward compatible** - Default behavior unchanged (automatic downloads enabled)
+✅ **No breaking changes** - Existing configurations continue to work
+✅ **Database compatible** - Uses same schema with new optional setting
+✅ **API compatible** - All existing endpoints unchanged
+
+## Credits
+
+**Original Project:** [rogerfar/rdt-client](https://github.com/rogerfar/rdt-client)
+**Manual Download Fork:** [erix/rdt-client](https://github.com/erix/rdt-client)
+
+This fork is built on the excellent work of the original rdt-client project. All core functionality and credit for the base system goes to the original developers.
+
+### Contributing
+
+Found a bug or want to contribute?
+- **Fork issues:** Open an issue at [erix/rdt-client](https://github.com/erix/rdt-client/issues)
+- **Original project:** See [rogerfar/rdt-client](https://github.com/rogerfar/rdt-client)
