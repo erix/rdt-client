@@ -65,15 +65,45 @@
             {{ torrent | status }}
           </td>
           <td>
-            @if (torrent.rdStatus === 4 && torrent.downloads.length === 0) {
-              <button
-                class="button is-small is-success"
-                (click)="$event.stopPropagation(); selectedTorrents = [torrent.torrentId]; showStartDownloadModal()"
-                title="Start Download"
-              >
-                <i class="fas fa-download"></i>
-              </button>
-            }
+            <div style="display: flex; gap: 0.25rem;">
+              @if (torrent.rdStatus === 4 && torrent.downloads.length === 0) {
+                <button
+                  class="button is-small is-success"
+                  (click)="$event.stopPropagation(); selectedTorrents = [torrent.torrentId]; showStartDownloadModal()"
+                  title="Start Download"
+                >
+                  <i class="fas fa-download"></i>
+                </button>
+              }
+              @for (download of torrent.downloads; track download.downloadId) {
+                @if (download.downloadStarted && !download.downloadFinished) {
+                  @if (!download.isPaused) {
+                    <button
+                      class="button is-small is-warning"
+                      (click)="$event.stopPropagation(); pauseDownload(download.downloadId)"
+                      title="Pause Download"
+                    >
+                      <i class="fas fa-pause"></i>
+                    </button>
+                  } @else {
+                    <button
+                      class="button is-small is-success"
+                      (click)="$event.stopPropagation(); resumeDownload(download.downloadId)"
+                      title="Resume Download"
+                    >
+                      <i class="fas fa-play"></i>
+                    </button>
+                  }
+                  <button
+                    class="button is-small is-danger"
+                    (click)="$event.stopPropagation(); cancelDownload(download.downloadId)"
+                    title="Cancel Download"
+                  >
+                    <i class="fas fa-stop"></i>
+                  </button>
+                }
+              }
+            </div>
           </td>
         </tr>
       }

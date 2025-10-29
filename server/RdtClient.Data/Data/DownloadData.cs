@@ -86,6 +86,23 @@ public class DownloadData(DataContext dataContext)
         await TorrentData.VoidCache();
     }
 
+    public async Task UpdateDownloadQueued(Guid downloadId, DateTimeOffset? dateTime)
+    {
+        var dbDownload = await dataContext.Downloads
+                                           .FirstOrDefaultAsync(m => m.DownloadId == downloadId);
+
+        if (dbDownload == null)
+        {
+            return;
+        }
+
+        dbDownload.DownloadQueued = dateTime;
+
+        await dataContext.SaveChangesAsync();
+
+        await TorrentData.VoidCache();
+    }
+
     public async Task UpdateDownloadStarted(Guid downloadId, DateTimeOffset? dateTime)
     {
         var dbDownload = await dataContext.Downloads
@@ -235,6 +252,23 @@ public class DownloadData(DataContext dataContext)
         dbDownload.RemoteId = remoteId;
 
         await dataContext.SaveChangesAsync();
+    }
+
+    public async Task Delete(Guid downloadId)
+    {
+        var download = await dataContext.Downloads
+                                        .FirstOrDefaultAsync(m => m.DownloadId == downloadId);
+
+        if (download == null)
+        {
+            return;
+        }
+
+        dataContext.Downloads.Remove(download);
+
+        await dataContext.SaveChangesAsync();
+
+        await TorrentData.VoidCache();
     }
 
     public async Task DeleteForTorrent(Guid torrentId)

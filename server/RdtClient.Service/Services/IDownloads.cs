@@ -10,6 +10,7 @@ public interface IDownloads
     Task<Download> Add(Guid torrentId, DownloadInfo downloadInfo);
     Task UpdateUnrestrictedLink(Guid downloadId, String unrestrictedLink);
     Task UpdateFileName(Guid downloadId, String fileName);
+    Task UpdateDownloadQueued(Guid downloadId, DateTimeOffset? dateTime);
     Task UpdateDownloadStarted(Guid downloadId, DateTimeOffset? dateTime);
     Task UpdateDownloadFinished(Guid downloadId, DateTimeOffset? dateTime);
     Task UpdateUnpackingQueued(Guid downloadId, DateTimeOffset? dateTime);
@@ -19,6 +20,7 @@ public interface IDownloads
     Task UpdateError(Guid downloadId, String? error);
     Task UpdateRetryCount(Guid downloadId, Int32 retryCount);
     Task UpdateRemoteId(Guid downloadId, String remoteId);
+    Task Delete(Guid downloadId);
     Task DeleteForTorrent(Guid torrentId);
     Task Reset(Guid downloadId);
 }

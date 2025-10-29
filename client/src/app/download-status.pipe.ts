@@ -40,6 +40,10 @@ export class DownloadStatusPipe implements PipeTransform {
     if (value.downloadStarted) {
       const progress = (value.bytesDone / value.bytesTotal || 0) * 100;
 
+      if (value.isPaused) {
+        return `Paused ${progress.toFixed(2)}%`;
+      }
+
       const speed = this.pipe.transform(value.speed, 'filesize');
 
       return `Downloading ${progress.toFixed(2)}% (${speed}/s)`;

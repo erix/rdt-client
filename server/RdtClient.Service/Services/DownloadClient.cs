@@ -11,6 +11,8 @@ public class DownloadClient(Download download, Torrent torrent, String destinati
     private static Int64 _totalBytesDownloadedThisSession;
     private static readonly Lock TotalBytesDownloadedLock = new();
 
+    private readonly Download _download = download;
+
     public IDownloader? Downloader;
 
     public Data.Enums.DownloadClient Type { get; private set; }
@@ -18,6 +20,8 @@ public class DownloadClient(Download download, Torrent torrent, String destinati
     public Boolean Finished { get; private set; }
 
     public String? Error { get; private set; }
+
+    public Boolean IsPaused => _download.IsPaused;
 
     public Int64 Speed { get; private set; }
     public Int64 BytesTotal { get; private set; }
@@ -126,6 +130,8 @@ public class DownloadClient(Download download, Torrent torrent, String destinati
         {
             return;
         }
+
+        _download.IsPaused = true;
         await Downloader.Pause();
     }
 
@@ -135,6 +141,8 @@ public class DownloadClient(Download download, Torrent torrent, String destinati
         {
             return;
         }
+
+        _download.IsPaused = false;
         await Downloader.Resume();
     }
 

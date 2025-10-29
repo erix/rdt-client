@@ -200,6 +200,39 @@ public class TorrentsController(ILogger<TorrentsController> logger, Torrents tor
     }
 
     [HttpPost]
+    [Route("PauseDownload/{downloadId:guid}")]
+    public async Task<ActionResult> PauseDownload(Guid downloadId)
+    {
+        logger.LogDebug("Pause download {downloadId}", downloadId);
+
+        await torrents.PauseDownload(downloadId);
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("ResumeDownload/{downloadId:guid}")]
+    public async Task<ActionResult> ResumeDownload(Guid downloadId)
+    {
+        logger.LogDebug("Resume download {downloadId}", downloadId);
+
+        await torrents.ResumeDownload(downloadId);
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("CancelDownload/{downloadId:guid}")]
+    public async Task<ActionResult> CancelDownload(Guid downloadId)
+    {
+        logger.LogDebug("Cancel download {downloadId}", downloadId);
+
+        await torrents.CancelDownload(downloadId);
+
+        return Ok();
+    }
+
+    [HttpPost]
     [Route("StartDownload/{torrentId:guid}")]
     public async Task<ActionResult> StartDownload(Guid torrentId)
     {

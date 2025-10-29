@@ -91,6 +91,18 @@ export class TorrentService {
     return this.http.post<void>(`${this.baseHref}Api/Torrents/RetryDownload/${downloadId}`, {});
   }
 
+  public pauseDownload(downloadId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseHref}Api/Torrents/PauseDownload/${downloadId}`, {});
+  }
+
+  public resumeDownload(downloadId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseHref}Api/Torrents/ResumeDownload/${downloadId}`, {});
+  }
+
+  public cancelDownload(downloadId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseHref}Api/Torrents/CancelDownload/${downloadId}`, {});
+  }
+
   public startDownload(torrentId: string): Observable<void> {
     return this.http.post<void>(`${this.baseHref}Api/Torrents/StartDownload/${torrentId}`, {});
   }

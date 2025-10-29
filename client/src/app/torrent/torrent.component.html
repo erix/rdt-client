@@ -330,6 +330,47 @@
                                 Retry Download
                               </button>
                             </div>
+                            @if (download.downloadStarted && !download.downloadFinished) {
+                              @if (!download.isPaused) {
+                                <div class="control">
+                                  <button
+                                    class="button is-warning"
+                                    (click)="pauseDownload(download.downloadId)"
+                                    title="Pause Download"
+                                  >
+                                    <span class="icon">
+                                      <i class="fas fa-pause"></i>
+                                    </span>
+                                    <span>Pause</span>
+                                  </button>
+                                </div>
+                              } @else {
+                                <div class="control">
+                                  <button
+                                    class="button is-success"
+                                    (click)="resumeDownload(download.downloadId)"
+                                    title="Resume Download"
+                                  >
+                                    <span class="icon">
+                                      <i class="fas fa-play"></i>
+                                    </span>
+                                    <span>Resume</span>
+                                  </button>
+                                </div>
+                              }
+                              <div class="control">
+                                <button
+                                  class="button is-danger"
+                                  (click)="cancelDownload(download.downloadId)"
+                                  title="Cancel Download"
+                                >
+                                  <span class="icon">
+                                    <i class="fas fa-stop"></i>
+                                  </span>
+                                  <span>Cancel</span>
+                                </button>
+                              </div>
+                            }
                           </div>
                           @if (download.error) {
                             <div class="field">

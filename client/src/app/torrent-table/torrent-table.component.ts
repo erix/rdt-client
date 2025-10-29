@@ -306,4 +306,37 @@ export class TorrentTableComponent implements OnInit {
   updateDeleteSelectAll() {
     this.deleteSelectAll = this.deleteData && this.deleteRdTorrent && this.deleteLocalFiles;
   }
+
+  public pauseDownload(downloadId: string): void {
+    this.torrentService.pauseDownload(downloadId).subscribe({
+      next: () => {
+        // Success - state will be updated via SignalR
+      },
+      error: (err) => {
+        console.error('Error pausing download:', err);
+      },
+    });
+  }
+
+  public resumeDownload(downloadId: string): void {
+    this.torrentService.resumeDownload(downloadId).subscribe({
+      next: () => {
+        // Success - state will be updated via SignalR
+      },
+      error: (err) => {
+        console.error('Error resuming download:', err);
+      },
+    });
+  }
+
+  public cancelDownload(downloadId: string): void {
+    this.torrentService.cancelDownload(downloadId).subscribe({
+      next: () => {
+        // Success - state will be updated via SignalR
+      },
+      error: (err) => {
+        console.error('Error cancelling download:', err);
+      },
+    });
+  }
 }

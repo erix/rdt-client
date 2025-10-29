@@ -122,11 +122,33 @@ public class BezzadDownloader : IDownloader
 
     public Task Pause()
     {
+        _logger.Debug($"Pausing download {_uri}");
+
+        try
+        {
+            _downloadService.Pause();
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(ex, $"Failed to pause download {_uri}");
+        }
+
         return Task.CompletedTask;
     }
 
     public Task Resume()
     {
+        _logger.Debug($"Resuming download {_uri}");
+
+        try
+        {
+            _downloadService.Resume();
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(ex, $"Failed to resume download {_uri}");
+        }
+
         return Task.CompletedTask;
     }
 

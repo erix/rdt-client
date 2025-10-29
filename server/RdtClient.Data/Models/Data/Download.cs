@@ -27,6 +27,9 @@ public class Download
 
     public Int32 RetryCount { get; set; }
 
+    [NotMapped]
+    public Boolean IsPaused { get; set; }
+
     public String? Error { get; set; }
 
     public String? RemoteId { get; set; }

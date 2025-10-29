@@ -18,8 +18,17 @@ export class TorrentStatusPipe implements PipeTransform {
         return 'Finished';
       }
 
-      const downloading = torrent.downloads.filter((m) => m.downloadStarted && !m.downloadFinished && m.bytesDone > 0);
+      const paused = torrent.downloads.filter((m) => m.downloadStarted && !m.downloadFinished && m.isPaused);
+      const downloading = torrent.downloads.filter((m) => m.downloadStarted && !m.downloadFinished && !m.isPaused && m.bytesDone > 0);
       const downloaded = torrent.downloads.filter((m) => m.downloadFinished != null);
+
+      if (paused.length > 0) {
+        const bytesDone = paused.reduce((sum, m) => sum + m.bytesDone, 0);
+        const bytesTotal = paused.reduce((sum, m) => sum + m.bytesTotal, 0);
+        const progress = (bytesDone / bytesTotal || 0) * 100;
+
+        return `Paused ${paused.length + downloaded.length}/${torrent.downloads.length} (${progress.toFixed(2)}%)`;
+      }
 
       if (downloading.length > 0) {
         const bytesDone = downloading.reduce((sum, m) => sum + m.bytesDone, 0);

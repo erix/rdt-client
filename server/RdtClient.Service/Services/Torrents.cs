@@ -69,6 +69,7 @@ public class Torrents(
                     download.Speed = downloadClient.Speed;
                     download.BytesTotal = downloadClient.BytesTotal;
                     download.BytesDone = downloadClient.BytesDone;
+                    download.IsPaused = downloadClient.IsPaused;
                 }
 
                 if (TorrentRunner.ActiveUnpackClients.TryGetValue(download.DownloadId, out var unpackClient))
@@ -999,5 +1000,73 @@ public class Torrents(
         }
 
         logger.LogDebug(message);
+    }
+
+    public async Task PauseDownload(Guid downloadId)
+    {
+        if (TorrentRunner.ActiveDownloadClients.TryGetValue(downloadId, out var downloadClient))
+        {
+            await downloadClient.Pause();
+            Log($"Paused download {downloadId}");
+        }
+        else
+        {
+            Log($"Download {downloadId} not found in active downloads");
+        }
+    }
+
+    public async Task ResumeDownload(Guid downloadId)
+    {
+        if (TorrentRunner.ActiveDownloadClients.TryGetValue(downloadId, out var downloadClient))
+        {
+            await downloadClient.Resume();
+            Log($"Resumed download {downloadId}");
+        }
+        else
+        {
+            Log($"Download {downloadId} not found in active downloads");
+        }
+    }
+
+    public async Task CancelDownload(Guid downloadId)
+    {
+        var download = await downloads.GetById(downloadId);
+
+        if (download == null)
+        {
+            return;
+        }
+
+        Log($"Cancelling Download", download, download.Torrent);
+
+        // Remove from active downloads and cancel
+        while (TorrentRunner.ActiveDownloadClients.TryRemove(download.DownloadId, out var downloadClient))
+        {
+            await downloadClient.Cancel();
+            await Task.Delay(100);
+        }
+
+        // Remove from active unpacking if present
+        while (TorrentRunner.ActiveUnpackClients.TryRemove(download.DownloadId, out var unpackClient))
+        {
+            unpackClient.Cancel();
+            await Task.Delay(100);
+        }
+
+        // Delete partial downloaded file
+        var downloadPath = DownloadPath(download.Torrent!);
+        var filePath = DownloadHelper.GetDownloadPath(downloadPath, download.Torrent!, download);
+
+        if (filePath != null)
+        {
+            Log($"Deleting partial file {filePath}", download, download.Torrent);
+            await FileHelper.Delete(filePath);
+        }
+
+        // Delete the download record entirely
+        Log($"Deleting download record", download, download.Torrent);
+        await downloads.Delete(downloadId);
+
+        Log($"Download cancelled and removed", download, download.Torrent);
     }
 }

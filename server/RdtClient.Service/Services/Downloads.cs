@@ -36,6 +36,11 @@ public class Downloads(DownloadData downloadData) : IDownloads
         await downloadData.UpdateFileName(downloadId, fileName);
     }
 
+    public async Task UpdateDownloadQueued(Guid downloadId, DateTimeOffset? dateTime)
+    {
+        await downloadData.UpdateDownloadQueued(downloadId, dateTime);
+    }
+
     public async Task UpdateDownloadStarted(Guid downloadId, DateTimeOffset? dateTime)
     {
         await downloadData.UpdateDownloadStarted(downloadId, dateTime);
@@ -81,11 +86,16 @@ public class Downloads(DownloadData downloadData) : IDownloads
         await downloadData.UpdateRemoteId(downloadId, remoteId);
     }
     
+    public async Task Delete(Guid downloadId)
+    {
+        await downloadData.Delete(downloadId);
+    }
+
     public async Task DeleteForTorrent(Guid torrentId)
     {
         await downloadData.DeleteForTorrent(torrentId);
     }
-        
+
     public async Task Reset(Guid downloadId)
     {
         await downloadData.Reset(downloadId);
