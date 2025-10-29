@@ -1,15 +1,16 @@
 #!/bin/bash
 
-# Docker Hub Publishing Script for rdt-client with manual download feature
-# This will build multi-platform images and push to Docker Hub for use on TrueNAS
+# Docker Hub Publishing Script for rdt-client
+# This script provides manual Docker builds. For production releases, use GitHub Actions workflow.
+# GitHub Actions automatically builds and publishes when you push version tags (e.g., v2.0.120)
 
 set -e # Exit on error
 
 # Configuration - UPDATE THESE!
-DOCKER_USERNAME="erix12" # Change this to your Docker Hub username
-IMAGE_NAME="rdt-client-manual-download"
-VERSION="2.0.119-manual-download"
-PLATFORMS="linux/amd64,linux/arm64" # Build for Intel/AMD, ARM64 (includes Raspberry Pi 3/4/5 with 64-bit OS)
+DOCKER_USERNAME="erix12" # Must match your Docker Hub username (same as DOCKERHUB_USERNAME secret in GitHub)
+IMAGE_NAME="rdt-client-manual-download" # Must match APP_NAME_LEGACY in .github/workflows/build-docker-image.yml
+VERSION="2.0.120" # Current version - update this for each release
+PLATFORMS="linux/amd64,linux/arm64" # Build for Intel/AMD and ARM64 (Raspberry Pi 4/5, Apple Silicon)
 
 echo "🐳 Docker Hub Multi-Platform Publishing Script"
 echo "=============================================="
@@ -64,15 +65,19 @@ echo "🎉 Success! Your image is now on Docker Hub:"
 echo ""
 echo "   https://hub.docker.com/r/$DOCKER_USERNAME/$IMAGE_NAME"
 echo ""
-echo "📝 To use on TrueNAS:"
-echo "   1. Go to Apps → Discover Apps"
-echo "   2. Find 'rdt-client' or use custom app"
-echo "   3. Use image: $DOCKER_USERNAME/$IMAGE_NAME:latest"
+echo "📝 Images tagged as:"
+echo "   - $DOCKER_USERNAME/$IMAGE_NAME:$VERSION"
+echo "   - $DOCKER_USERNAME/$IMAGE_NAME:latest"
+echo ""
+echo "💡 Note: For production releases, prefer using GitHub Actions:"
+echo "   git tag -a v$VERSION -m \"Release v$VERSION\""
+echo "   git push origin v$VERSION"
+echo "   This will automatically build and publish to Docker Hub + GHCR"
 echo ""
 echo "🐳 To pull and run locally:"
-echo "   docker pull $DOCKER_USERNAME/$IMAGE_NAME:latest"
+echo "   docker pull $DOCKER_USERNAME/$IMAGE_NAME:$VERSION"
 echo "   docker run -d -p 6500:6500 \\"
 echo "     -v /path/to/downloads:/data/downloads \\"
 echo "     -v /path/to/db:/data/db \\"
-echo "     $DOCKER_USERNAME/$IMAGE_NAME:latest"
+echo "     $DOCKER_USERNAME/$IMAGE_NAME:$VERSION"
 echo ""

@@ -9,7 +9,7 @@ permissions:
   packages: write
 
 env:
-  APP_NAME: rdtclient
+  APP_NAME: rdt-client-manual-download
   DOCKER_FILE: ./Dockerfile
   ENABLE_DOCKERHUB: 1
   ENABLE_GHCR: 1
@@ -102,7 +102,7 @@ jobs:
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Docker Metadata action
         id: meta
         uses: docker/metadata-action@v5
@@ -118,7 +118,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
-      
+
       - name: Create manifest list and push
         run: |         
           docker buildx imagetools create \
@@ -139,3 +139,4 @@ jobs:
           short-description: |
             A web interface to manage your torrents on debrid providers.
           readme-filepath: ./README-DOCKER.md
+
